@@ -1,0 +1,17 @@
+[Unit]
+Description=Show IP Addresses at Boot Prompt
+Requires=network-online.target
+After=network-online.target
+Before=systemd-user-sessions.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardError=null
+StandardOutput=null
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/sh -c "echo \"127.0.0.1       $(hostname)\" > /etc/hosts && mkdir -p /etc/motd.d/ && until ip -o -4 addr show | grep global | grep -v docker; do sleep 0.3; ((count++)); if [ $count -ge 33 ]; then break; fi; done && echo \"Welcome to Clear Linux $(uname -o) $(uname -r) $(uname -m)\n\nIP Address:\n$(ip -o -4 addr list $(ip route show 0.0.0.0/0 | awk '{print $5}') | head -1 | awk '{print $4}' | cut -d/ -f1)\n\nRoutes:\n$(ip route show)\n\nLANs:\n$(ip -o -4 addr list)\n\" > /etc/issue"
+ExecStop=/usr/bin/sh -c "echo bye"
+
+[Install]
+WantedBy=network-online.target
