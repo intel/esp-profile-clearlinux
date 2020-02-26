@@ -1,0 +1,16 @@
+[Unit]
+Description=Run once at boot
+Requires=motd-trigger.service
+After=systemd-networkd-wait-online.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+StandardError=null
+StandardOutput=null
+WorkingDirectory=/tmp
+ExecStart=/usr/bin/sh -c "echo \"127.0.0.1       $(hostname)\" > /etc/hosts && mkdir -p /etc/motd.d/ && echo \"Welcome to Clear Linux $(uname -o) $(uname -r) $(uname -m)\n\nIP Addresses:\n$(ip -o -4 addr list | awk '{print $4}' | cut -d/ -f1)\n\" > /etc/issue"
+ExecStop=/usr/bin/sh -c "echo bye"
+
+[Install]
+WantedBy=multi-user.target
