@@ -171,19 +171,7 @@ clearlinux_bundles="\
 export freemem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
 # --- Detect HDD ---
-if [ -d /sys/block/[vsh]da ]; then
-	export DRIVE=$(echo /dev/$(ls -l /sys/block/[vsh]da | grep -v usb | head -n1 | sed 's/^.*\([vsh]d[a-z]\+\).*$/\1/'))
-	if [[ $param_parttype == 'efi' ]]; then
-		export EFI_PARTITION=${DRIVE}1
-		export BOOT_PARTITION=${DRIVE}2
-		export SWAP_PARTITION=${DRIVE}3
-		export ROOT_PARTITION=${DRIVE}4
-	else
-		export BOOT_PARTITION=${DRIVE}1
-		export SWAP_PARTITION=${DRIVE}2
-		export ROOT_PARTITION=${DRIVE}3
-	fi
-elif [ -d /sys/block/nvme[0-9]n[0-9] ]; then
+if [ -d /sys/block/nvme[0-9]n[0-9] ]; then
 	export DRIVE=$(echo /dev/$(ls -l /sys/block/nvme* | grep -v usb | head -n1 | sed 's/^.*\(nvme[a-z0-1]\+\).*$/\1/'))
 	if [[ $param_parttype == 'efi' ]]; then
 		export EFI_PARTITION=${DRIVE}p1
@@ -194,6 +182,18 @@ elif [ -d /sys/block/nvme[0-9]n[0-9] ]; then
 		export BOOT_PARTITION=${DRIVE}p1
 		export SWAP_PARTITION=${DRIVE}p2
 		export ROOT_PARTITION=${DRIVE}p3
+	fi
+elif [ -d /sys/block/[vsh]da ]; then
+	export DRIVE=$(echo /dev/$(ls -l /sys/block/[vsh]da | grep -v usb | head -n1 | sed 's/^.*\([vsh]d[a-z]\+\).*$/\1/'))
+	if [[ $param_parttype == 'efi' ]]; then
+		export EFI_PARTITION=${DRIVE}1
+		export BOOT_PARTITION=${DRIVE}2
+		export SWAP_PARTITION=${DRIVE}3
+		export ROOT_PARTITION=${DRIVE}4
+	else
+		export BOOT_PARTITION=${DRIVE}1
+		export SWAP_PARTITION=${DRIVE}2
+		export ROOT_PARTITION=${DRIVE}3
 	fi
 elif [ -d /sys/block/mmcblk[0-9] ]; then
 	export DRIVE=$(echo /dev/$(ls -l /sys/block/mmcblk[0-9] | grep -v usb | head -n1 | sed 's/^.*\(mmcblk[0-9]\+\).*$/\1/'))
@@ -211,29 +211,6 @@ else
 	echo "No supported drives found!" 2>&1 | tee -a /dev/tty0
 	sleep 300
 	reboot
-fi
-
-
-# --- Detect HDD ---
-if [ -d /sys/block/[vsh]da ]; then
-    export DRIVE=$(echo /dev/`ls -l /sys/block/[vsh]da | grep -v usb | head -n1 | sed 's/^.*\([vsh]d[a-z]\+\).*$/\1/'`);
-    export BOOT_PARTITION=${DRIVE}1
-    export SWAP_PARTITION=${DRIVE}2
-    export ROOT_PARTITION=${DRIVE}3
-elif [ -d /sys/block/nvme[0-9]n[0-9] ]; then
-    export DRIVE=$(echo /dev/`ls -l /sys/block/nvme* | grep -v usb | head -n1 | sed 's/^.*\(nvme[a-z0-1]\+\).*$/\1/'`);
-    export BOOT_PARTITION=${DRIVE}p1
-    export SWAP_PARTITION=${DRIVE}p2
-    export ROOT_PARTITION=${DRIVE}p3
-elif [ -d /sys/block/mmcblk[0-9] ]; then
-    export DRIVE=$(echo /dev/`ls -l /sys/block/mmcblk[0-9] | grep -v usb | head -n1 | sed 's/^.*\(mmcblk[0-9]\+\).*$/\1/'`);
-    export BOOT_PARTITION=${DRIVE}p1
-    export SWAP_PARTITION=${DRIVE}p2
-    export ROOT_PARTITION=${DRIVE}p3
-else
-    echo "No supported drives found!" 2>&1 | tee -a /dev/tty0
-    sleep 300
-    reboot
 fi
 
 export BOOTFS=/target/boot
@@ -304,6 +281,7 @@ fi
 if [ $freemem -lt 6291456 ]; then
     mkdir -p $ROOTFS/tmp
     export TMP=$ROOTFS/tmp
+    export PROVISION_LOG="$TMP/provisioning.log"
 else
     mkdir -p /build
     export TMP=/build
