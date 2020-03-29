@@ -155,6 +155,17 @@ else
 	export kernel_params="$param_kernparam"
 fi
 
+# --- Clear Linux Bundles ---
+clearlinux_bundles="\
+	os-core \
+	os-core-update \
+	kernel-install \
+	kernel-native \
+	sysadmin-basic \
+	network-basic \
+	containers-basic \
+	editors \
+	openssh-server"
 
 # --- Get free memory
 export freemem=$(grep MemTotal /proc/meminfo | awk '{print $2}')
