@@ -7,7 +7,6 @@ Intended to be used with Retail Node Installer and Clear Linux base profile, thi
 ## Software Stack in this profile
 
 * Clear Linux w/ Docker
-* Clear Linux Desktop
   
 ## Target Device Prerequisites
 

@@ -12,9 +12,7 @@ source /opt/bootstrap/functions
 
 
 # --- Add Packages ---
-clearlinux_bundles="\
-        desktop \
-        desktop-autostart"
+clearlinux_bundles=""
 
 # --- List out any docker images you want pre-installed separated by spaces. ---
 pull_sysdockerimagelist=""
@@ -23,13 +21,14 @@ pull_sysdockerimagelist=""
 wget_sysdockerimagelist="" 
 
 
-
-run "Installing Clear Linux bundles" "docker run -i --rm --privileged --name cl-installer ${DOCKER_PROXY_ENV} -v /dev:/dev -v /sys/:/sys/ -v $ROOTFS:/target/root clearlinux:latest sh -c \
-  'mount --bind dev /target/root/dev && \
-  mount -t proc proc /target/root/proc && \
-  mount -t sysfs sysfs /target/root/sys && \
-  chroot /target/root sh -c \
-    \"swupd bundle-add ${clearlinux_bundles}\"'" "$TMP/provisioning.log"
+if [ ! -z "${clearlinux_bundles}" ]; then
+  run "Installing Clear Linux bundles" "docker run -i --rm --privileged --name cl-installer ${DOCKER_PROXY_ENV} -v /dev:/dev -v /sys/:/sys/ -v $ROOTFS:/target/root clearlinux:latest sh -c \
+    'mount --bind dev /target/root/dev && \
+    mount -t proc proc /target/root/proc && \
+    mount -t sysfs sysfs /target/root/sys && \
+    chroot /target/root sh -c \
+      \"swupd bundle-add ${clearlinux_bundles}\"'" "$TMP/provisioning.log"
+fi
 
 # --- Pull any and load any system images ---
 for image in $pull_sysdockerimagelist; do
