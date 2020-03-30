@@ -31,15 +31,6 @@ run "Installing Clear Linux bundles" "docker run -i --rm --privileged --name cl-
   chroot /target/root sh -c \
     \"swupd bundle-add ${clearlinux_bundles}\"'" "$TMP/provisioning.log"
 
-# --- Install Docker Compose ---
-run "Installing Docker Compose" "mkdir -p $ROOTFS/usr/local/bin/ && \
-wget -O $ROOTFS/usr/local/bin/docker-compose \"https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)\" && \
-chmod a+x $ROOTFS/usr/local/bin/docker-compose" "$TMP/provisioning.log"
-
-# --- Create system-docker database on $ROOTFS ---
-run "Preparing system-docker database" "mkdir -p $ROOTFS/var/lib/docker && \
-docker run -d --privileged --name system-docker ${DOCKER_PROXY_ENV} -v $ROOTFS/etc/docker:/etc/docker -v $ROOTFS/var/lib/docker:/var/lib/docker docker:stable-dind ${REGISTRY_MIRROR}" "$TMP/provisioning.log"
-
 # --- Pull any and load any system images ---
 for image in $pull_sysdockerimagelist; do
 	run "Installing system-docker image $image" "docker exec -i system-docker docker pull $image" "$TMP/provisioning.log"
