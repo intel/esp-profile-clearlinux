@@ -2,7 +2,7 @@
 
 <img align="right" src="https://avatars1.githubusercontent.com/u/12545216?s=200&v=4">
 
-Intended to be used with Retail Node Installer and Clear Linux base profile, this Clear Linux OS profile contains a few files that ultimately will install Clear Linux OS to disk.
+Intended to be used with [Retail Node Installer](https://github.com/intel/retail-node-installer) and Clear Linux base profile, this Clear Linux OS profile contains a few files that ultimately will install Clear Linux OS to disk.
 
 ## Software Stack in this profile
 
