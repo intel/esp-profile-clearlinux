@@ -6,7 +6,8 @@ Intended to be used with Retail Node Installer and Clear Linux base profile, thi
 
 ## Software Stack in this profile
 
-* Clear Linux
+* Clear Linux w/ Docker
+* Clear Linux Desktop
   
 ## Target Device Prerequisites
 
@@ -38,12 +39,13 @@ The following kernel parameters can be added to `conf/config.yml`
 * `httppath` - RESERVED, do not change
 * `kernparam` - Used to pass additional kernel parameters to the targeted system.  Example format: kernparam=splash:quiet#enable_gvt:1
 * `parttype` - RESERVED, do not change
-* `password` - Initial user password. Defaults to 'password'
+* `hostsshport` - Set SSH Server listening port.  Defaults to '22'
 * `proxy` - Add proxy settings if behind proxy during installation.  Example: <http://proxy-us.intel.com:912>
 * `proxysocks` - Add socks proxy settings if behind proxy during installation.  Example: <http://proxy-us.intel.com:1080>
 * `release` - [prod | dev] If set to prod the system will shutdown after it is provisioned.  Altnerativily it will reboot.
 * `token` - GitHub token for private repositories, if this profile is in a private respository this token should have access to this repo
 * `username` - Initial user name. Defaults to 'sys-admin'
+* `password` - Initial user password. Defaults to 'password'
 
 ## Sample Profile Section
 
