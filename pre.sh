@@ -137,6 +137,13 @@ else
 	export param_password="password"
 fi
 
+if [[ $kernel_params = *"hostsshport="* ]]; then
+	tmp="${kernel_params##*hostsshport=}"
+	param_hostsshport="${tmp%% *}"
+else
+	param_hostsshport="22"
+fi
+
 if [[ $kernel_params == *"debug="* ]]; then
 	tmp="${kernel_params##*debug=}"
 	export param_debug="${tmp%% *}"
@@ -347,7 +354,7 @@ else
         "$TMP/provisioning.log"
 fi
 
-HOSTNAME="clr-$(< /dev/urandom tr -dc a-f0-9 | head -c5)"
+HOSTNAME="clr-$(< /dev/urandom tr -dc a-f0-9 | head -c10)"
 run "Set Host Name" \
     "echo \"${HOSTNAME}\" > $ROOTFS/etc/hostname" \
     "$TMP/provisioning.log"
@@ -372,6 +379,11 @@ run "Enabling Networking" \
     chroot /target/root sh -c \
     \"systemctl enable systemd-networkd\"'" \
     "$TMP/provisioning.log"
+
+mkdir -p $ROOTFS/etc/systemd/system/sshd.socket.d && \
+echo "[Socket]
+ListenStream=
+ListenStream=${param_hostsshport}" > $ROOTFS/etc/systemd/system/sshd.socket.d/override.conf
 
 run "Adding user ${param_username}" \
     "docker run -i --rm --privileged --name cl-installer ${DOCKER_PROXY_ENV} -v /dev:/dev -v /sys/:/sys/ -v $ROOTFS:/target/root clearlinux:latest sh -c \
@@ -444,5 +456,10 @@ fi
 # --- Create system-docker database on $ROOTFS ---
 run "Preparing system-docker database" \
     "mkdir -p $ROOTFS/var/lib/docker && \
-    docker run -d --privileged --name system-docker ${DOCKER_PROXY_ENV} -v $ROOTFS/var/lib/docker:/var/lib/docker docker:18.06-dind ${REGISTRY_MIRROR}" \
+    docker run -d --privileged --name system-docker ${DOCKER_PROXY_ENV} -v $ROOTFS/var/lib/docker:/var/lib/docker docker:stable-dind ${REGISTRY_MIRROR}" \
     "$TMP/provisioning.log"
+
+# --- Install Docker Compose ---
+run "Installing Docker Compose" "mkdir -p $ROOTFS/usr/local/bin/ && \
+wget -O $ROOTFS/usr/local/bin/docker-compose \"https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)\" && \
+chmod a+x $ROOTFS/usr/local/bin/docker-compose" "$TMP/provisioning.log"
