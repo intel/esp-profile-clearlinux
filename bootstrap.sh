@@ -10,21 +10,6 @@ source /opt/bootstrap/functions
 
 param_httpserver=$1
 
-# --- Config
-clearlinux_bundles="\
-        os-core \
-        os-core-update \
-        kernel-install \
-        kernel-native \
-        sysadmin-basic \
-        network-basic \
-        containers-basic \
-        docker-compose \
-        editors \
-        openssh-server \
-        desktop \
-        desktop-autostart"
-
 # --- Get kernel parameters ---
 kernel_params=$(cat /proc/cmdline)
 
