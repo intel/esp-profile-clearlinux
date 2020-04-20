@@ -194,7 +194,7 @@ elif [ -d /sys/block/mmcblk[0-9] ]; then
 	export SWAP_PARTITION=${DRIVE}p2
 	export ROOT_PARTITION=${DRIVE}p3
 else
-	echo "No supported drives found!" 2>&1 | tee -a /dev/tty0
+	echo "No supported drives found!" 2>&1 | tee -a /dev/console
 	sleep 300
 	reboot
 fi
@@ -204,11 +204,11 @@ export ROOTFS=/target/root
 mkdir -p $BOOTFS
 mkdir -p $ROOTFS
 
-echo "" 2>&1 | tee -a /dev/tty0
-echo "" 2>&1 | tee -a /dev/tty0
-echo "Installing on ${DRIVE}" 2>&1 | tee -a /dev/tty0
-echo "" 2>&1 | tee -a /dev/tty0
-echo "" 2>&1 | tee -a /dev/tty0
+echo "" 2>&1 | tee -a /dev/console
+echo "" 2>&1 | tee -a /dev/console
+echo "Installing on ${DRIVE}" 2>&1 | tee -a /dev/console
+echo "" 2>&1 | tee -a /dev/console
+echo "" 2>&1 | tee -a /dev/console
 
 # --- Partition HDD ---
 run "Partitioning drive ${DRIVE}" \
@@ -285,7 +285,7 @@ run "Configuring Image Database" \
     /usr/local/bin/dockerd ${REGISTRY_MIRROR} --data-root=$ROOTFS/tmp/docker > /dev/null 2>&1 &" \
     "$TMP/provisioning.log"
 
-sleep 2
+while (! docker ps > /dev/null ); do sleep 0.5; done
 
 # --- Begin Clear Linux Install Process ---
 run "Preparing Clear Linux installer" \
