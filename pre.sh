@@ -279,13 +279,16 @@ elif [ $(wget http://${PROVISIONER}:5000/v2/_catalog -O-) ] 2>/dev/null; then
     export REGISTRY_MIRROR="--registry-mirror=http://${PROVISIONER}:5000"
 fi
 
-run "Configuring Image Database" \
-    "mkdir -p $ROOTFS/tmp/docker && \
-    killall dockerd && sleep 2 && \
-    /usr/local/bin/dockerd ${REGISTRY_MIRROR} --data-root=$ROOTFS/tmp/docker > /dev/null 2>&1 &" \
-    "$TMP/provisioning.log"
+# DockerD does not support overlay fs on tmpfs. VFS storage drive is used which is not efficient.  Require lots of ram in order to run in memory
+if [ $freemem -lt 16777216 ]; then
+    run "Configuring Image Database" \
+        "mkdir -p $ROOTFS/tmp/docker && \
+        killall dockerd && sleep 2 && \
+        /usr/local/bin/dockerd ${REGISTRY_MIRROR} --data-root=$ROOTFS/tmp/docker > /dev/null 2>&1 &" \
+        "$TMP/provisioning.log"
 
-while (! docker ps > /dev/null ); do sleep 0.5; done
+    while (! docker ps > /dev/null ); do sleep 0.5; done
+fi
 
 # --- Begin Clear Linux Install Process ---
 run "Preparing Clear Linux installer" \
