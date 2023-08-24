@@ -283,12 +283,15 @@ fi
 if [ $freemem -lt 16777216 ]; then
     run "Configuring Image Database" \
         "mkdir -p $ROOTFS/tmp/docker && \
-        killall dockerd && sleep 2 && \
-        /usr/local/bin/dockerd ${REGISTRY_MIRROR} --data-root=$ROOTFS/tmp/docker > /dev/null 2>&1 &" \
+        chmod 777 $ROOTFS/tmp && \
+        killall dockerd && \
+        while (ls /var/run/docker.pid > /dev/null 2>&1 ); do sleep 0.5; done && \
+        /usr/local/bin/dockerd ${REGISTRY_MIRROR} --data-root=$ROOTFS/tmp/docker >> ${TMP}/docker.log 2>&1 &" \
         "$TMP/provisioning.log"
-
-    while (! docker ps > /dev/null ); do sleep 0.5; done
+		
+    while (! docker ps > /dev/null ); do sleep 0.5; echo "Waiting for Docker to start" >> ${PROVISION_LOG}; done; sleep 3
 fi
+
 
 # --- Begin Clear Linux Install Process ---
 run "Preparing Clear Linux installer" \
